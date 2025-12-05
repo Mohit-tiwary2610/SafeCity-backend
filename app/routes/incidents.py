@@ -23,6 +23,20 @@ class IncidentIn(BaseModel):
     consent_public_map: bool = False
     media_urls: list[str] = []
 
+# ✅ GET route for frontend dashboard
+@router.get("/")
+async def get_all_incidents():
+    try:
+        cursor = db.incidents.find().sort("created_at", -1)
+        incidents = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])  # Convert ObjectId to string
+            incidents.append(doc)
+        return {"ok": True, "incidents": incidents}
+    except Exception as e:
+        print("❌ Error in get_all_incidents:", e)
+        return {"ok": False, "error": str(e)}
+
 @router.post("/")
 async def create_incident(incident: IncidentIn):
     try:
